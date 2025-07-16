@@ -13,7 +13,7 @@ import ContabilPage from './pages/ContabilPage';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/capim-ai-demo">
       <Routes>
         {/* Modo consulta - fora do layout padrão para experiência mobile otimizada */}
         <Route path="/consultation-mode" element={<ConsultationModePage />} />
