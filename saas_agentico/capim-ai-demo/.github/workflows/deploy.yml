@@ -25,9 +25,11 @@ jobs:
         node-version: '20'
         
     - name: Install dependencies
+      working-directory: saas_agentico/capim-ai-demo
       run: npm install
       
     - name: Build
+      working-directory: saas_agentico/capim-ai-demo
       run: npm run build
       
     - name: Setup Pages
@@ -36,7 +38,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: './dist'
+        path: './saas_agentico/capim-ai-demo/dist'
         
     - name: Deploy to GitHub Pages
       id: deployment
