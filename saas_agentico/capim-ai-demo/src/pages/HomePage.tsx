@@ -512,6 +512,7 @@ const HomePage: React.FC = () => {
         </div>
 
         {/* Modal Generativo de Agendamento */}
+        {/* Ensure correct props are used for deployment */}
         <GenerativeSchedulingModal
           isVisible={isGenerativeModalVisible}
           chatText={chatMessage}
