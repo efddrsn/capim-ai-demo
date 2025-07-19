@@ -33,11 +33,13 @@ const AIChatPanel: React.FC = () => {
     const pathMap: { [key: string]: string } = {
       '/': 'Home',
       '/agenda': 'Agenda',
-      '/pacientes': 'Pacientes', 
+      '/pacientes': 'Pacientes',
+      '/orcamentos': 'Orçamentos', 
       '/financeiro': 'Financeiro',
       '/estoque': 'Estoque',
       '/comunicacao': 'Comunicação',
       '/relatorios': 'Relatórios',
+      '/contabil': 'Contábil',
     };
     
     const context = pathMap[location.pathname];
@@ -164,15 +166,35 @@ const AIChatPanel: React.FC = () => {
         'O perfil dos seus pacientes mostra 60% mulheres, idade média 35 anos.',
         'Identifiquei 5 pacientes com histórico de faltas recorrentes.'
       ],
+      '/orcamentos': [
+        'Identifiquei 8 orçamentos próximos do vencimento nos próximos 15 dias.',
+        'Sua taxa de conversão de orçamentos está em 72% este mês.',
+        'Procedimentos estéticos têm maior aceitação que tratamentos corretivos.'
+      ],
       '/financeiro': [
         'Seu faturamento este mês está 15% acima do mês anterior.',
         'Identifiquei R$ 2.340 em pagamentos pendentes dos últimos 30 dias.',
         'A análise de fluxo de caixa indica necessidade de provisão para dezembro.'
       ],
+      '/estoque': [
+        'Identifiquei 3 itens com estoque crítico: anestésicos, luvas M e algodão.',
+        'Seu padrão de consumo sugere reposição semanal de materiais básicos.',
+        'Fornecedor principal tem prazo de entrega de 2 dias úteis.'
+      ],
+      '/comunicacao': [
+        'Taxa de resposta dos lembretes via WhatsApp está em 95%.',
+        'Campanhas de reativação têm retorno médio de 25% dos pacientes.',
+        'Pesquisas de satisfação mostram NPS de 8.5/10.'
+      ],
       '/relatorios': [
         'Gerei um relatório comparativo que mostra crescimento de 12% no trimestre.',
         'Os dados indicam que terça-feira é seu dia mais produtivo.',
         'Identifiquei uma tendência de queda na retenção de pacientes novos.'
+      ],
+      '/contabil': [
+        'DAS de dezembro: R$ 890,45 com vencimento em 20/01/2025.',
+        'Impostos anuais totalizam R$ 15.650 (8,2% do faturamento).',
+        'Próximos vencimentos: DAS janeiro, DCTF fevereiro, Declaração maio.'
       ]
     };
     
@@ -190,13 +212,29 @@ const AIChatPanel: React.FC = () => {
         { label: '📋 Ver lista completa', action: 'show_patient_list' },
         { label: '📱 Enviar campanha', action: 'send_campaign' }
       ],
+      '/orcamentos': [
+        { label: '💰 Criar orçamento', action: 'create_budget' },
+        { label: '⏰ Ver vencimentos', action: 'check_expiring' }
+      ],
       '/financeiro': [
         { label: '📊 Gerar relatório', action: 'generate_report' },
         { label: '💰 Lançar pagamento', action: 'record_payment' }
       ],
+      '/estoque': [
+        { label: '📦 Gerar pedido', action: 'create_order' },
+        { label: '⚠️ Ver críticos', action: 'check_critical' }
+      ],
+      '/comunicacao': [
+        { label: '📱 Enviar WhatsApp', action: 'send_whatsapp' },
+        { label: '📋 Criar campanha', action: 'create_campaign' }
+      ],
       '/relatorios': [
         { label: '📈 Ver detalhes', action: 'show_details' },
         { label: '📄 Exportar PDF', action: 'export_pdf' }
+      ],
+      '/contabil': [
+        { label: '🧾 Gerar DAS', action: 'generate_das' },
+        { label: '📅 Ver vencimentos', action: 'check_deadlines' }
       ]
     };
     
