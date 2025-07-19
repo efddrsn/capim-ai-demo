@@ -3,6 +3,7 @@ import { Send, Zap, MessageCircle, BarChart3, X } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { getPrioritizedSuggestions } from '../data/contextualSuggestions';
 import type { ContextualSuggestion } from '../data/contextualSuggestions';
+import TypingIndicator from './TypingIndicator';
 
 type ChatState = 'suggestions' | 'conversation';
 type Message = {
@@ -18,6 +19,7 @@ const AIChatPanel: React.FC = () => {
   const [chatState, setChatState] = useState<ChatState>('suggestions');
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessageIds, setNewMessageIds] = useState<Set<string>>(new Set());
+  const [isTyping, setIsTyping] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -260,7 +262,14 @@ const AIChatPanel: React.FC = () => {
       setNewMessageIds(new Set([userMessage.id]));
       setMessage('');
       
+      // Show typing indicator
+      setIsTyping(true);
+      
+      // Mobile gets faster response time
+      const responseDelay = window.innerWidth < 1024 ? 600 : 1000;
+      
       setTimeout(() => {
+        setIsTyping(false);
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           type: 'assistant',
@@ -270,7 +279,7 @@ const AIChatPanel: React.FC = () => {
         };
         setMessages(prev => [...prev, aiResponse]);
         setNewMessageIds(new Set([aiResponse.id]));
-      }, 1000);
+      }, responseDelay);
     }
   };
 
@@ -296,8 +305,15 @@ const AIChatPanel: React.FC = () => {
       setNewMessageIds(new Set([userMessage.id]));
       setMessage('');
       
+      // Show typing indicator
+      setIsTyping(true);
+      
+      // Mobile gets faster response time
+      const responseDelay = window.innerWidth < 1024 ? 600 : 1000;
+      
       // Simula resposta da IA após delay
       setTimeout(() => {
+        setIsTyping(false);
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           type: 'assistant',
@@ -307,7 +323,7 @@ const AIChatPanel: React.FC = () => {
         };
         setMessages(prev => [...prev, aiResponse]);
         setNewMessageIds(new Set([aiResponse.id]));
-      }, 1000);
+      }, responseDelay);
     }, 100);
   };
 
@@ -406,11 +422,11 @@ const AIChatPanel: React.FC = () => {
                     : ''
                 }`}
               >
-                <div className={`p-3 rounded-lg ${
+                <div className={`p-3 rounded-lg transition-all ${
                   msg.type === 'user' 
                     ? 'bg-purple-100 text-purple-800 ml-auto max-w-[80%]'
                     : 'bg-gray-100 text-gray-800 max-w-[90%]'
-                }`}>
+                } ${newMessageIds.has(msg.id) ? 'animate-pulse-subtle' : ''}`}>
                   <p className="text-sm">{msg.text}</p>
                   {msg.actionCards && msg.actionCards.length > 0 && (
                     <div className="mt-2 space-y-1">
@@ -427,6 +443,9 @@ const AIChatPanel: React.FC = () => {
                 </div>
               </div>
             ))}
+            
+            {/* Typing Indicator */}
+            <TypingIndicator isVisible={isTyping} className="mr-4" />
           </div>
         ) : (
                      /* AI Action Suggestions */

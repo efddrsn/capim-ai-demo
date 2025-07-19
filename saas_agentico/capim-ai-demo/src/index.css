@@ -82,11 +82,22 @@ html, body {
   @apply bg-gray-50;
 }
 
-/* Chat message animations */
+/* Chat message animations - Responsive */
 @keyframes fade-slide-up {
   0% {
     opacity: 0;
     transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-slide-up-mobile {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
   }
   100% {
     opacity: 1;
@@ -109,8 +120,120 @@ html, body {
   }
 }
 
+@keyframes scale-in-mobile {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .animate-scale-in {
   animation: scale-in 0.3s ease-out;
+}
+
+/* Typing indicator animation */
+@keyframes typing-dots {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+.animate-typing-dots {
+  animation: typing-dots 1.4s infinite ease-in-out;
+}
+
+.animate-typing-dots:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.animate-typing-dots:nth-child(2) {
+  animation-delay: 200ms;
+}
+
+.animate-typing-dots:nth-child(3) {
+  animation-delay: 400ms;
+}
+
+/* Slide in from bottom animation for mobile chat */
+@keyframes slide-up-mobile {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up-mobile {
+  animation: slide-up-mobile 0.3s ease-out;
+}
+
+/* Pulse animation for new messages */
+@keyframes pulse-subtle {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s infinite;
+}
+
+/* Mobile-optimized chat animations */
+@media (max-width: 1024px) {
+  .animate-fade-slide-up {
+    animation: fade-slide-up-mobile 0.25s ease-out;
+  }
+  
+  .animate-scale-in {
+    animation: scale-in-mobile 0.2s ease-out;
+  }
+  
+  /* Faster transitions for mobile */
+  .transition-all {
+    transition-duration: 0.15s;
+  }
+  
+  .transition-colors {
+    transition-duration: 0.15s;
+  }
+  
+  .transition-transform {
+    transition-duration: 0.15s;
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-slide-up,
+    .animate-scale-in,
+    .animate-slide-up-mobile,
+    .animate-typing-dots,
+    .animate-pulse-subtle {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    
+    .transition-all,
+    .transition-colors,
+    .transition-transform {
+      transition: none;
+    }
+  }
 }
 
 /* Mobile-specific FullCalendar improvements */

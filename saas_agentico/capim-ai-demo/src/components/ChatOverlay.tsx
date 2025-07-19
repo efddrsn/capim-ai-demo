@@ -18,6 +18,7 @@ const ChatOverlay: React.FC = () => {
   const [chatState, setChatState] = useState<ChatState>('suggestions');
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessageIds, setNewMessageIds] = useState<Set<string>>(new Set());
+  const [isTyping, setIsTyping] = useState(false);
   const location = useLocation();
 
   // Remove animation class after animation completes
@@ -242,8 +243,15 @@ const ChatOverlay: React.FC = () => {
       setNewMessageIds(new Set([userMessage.id]));
       setMessage('');
       
+      // Show typing indicator
+      setIsTyping(true);
+      
+      // Mobile gets faster response time
+      const responseDelay = window.innerWidth < 1024 ? 600 : 1000;
+      
       // Simula resposta da IA após delay
       setTimeout(() => {
+        setIsTyping(false);
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           type: 'assistant',
@@ -253,7 +261,7 @@ const ChatOverlay: React.FC = () => {
         };
         setMessages(prev => [...prev, aiResponse]);
         setNewMessageIds(new Set([aiResponse.id]));
-      }, 1000);
+      }, responseDelay);
     }
   };
 
@@ -279,8 +287,15 @@ const ChatOverlay: React.FC = () => {
       setNewMessageIds(new Set([userMessage.id]));
       setMessage('');
       
+      // Show typing indicator
+      setIsTyping(true);
+      
+      // Mobile gets faster response time
+      const responseDelay = window.innerWidth < 1024 ? 600 : 1000;
+      
       // Simula resposta da IA após delay
       setTimeout(() => {
+        setIsTyping(false);
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           type: 'assistant',
@@ -290,7 +305,7 @@ const ChatOverlay: React.FC = () => {
         };
         setMessages(prev => [...prev, aiResponse]);
         setNewMessageIds(new Set([aiResponse.id]));
-      }, 1000);
+      }, responseDelay);
     }, 100);
   };
 
@@ -397,11 +412,11 @@ const ChatOverlay: React.FC = () => {
                       : ''
                   }`}
                 >
-                  <div className={`max-w-[300px] lg:max-w-[400px] px-4 lg:px-5 py-3 lg:py-4 rounded-xl shadow-lg backdrop-blur-sm ${
+                  <div className={`max-w-[300px] lg:max-w-[400px] px-4 lg:px-5 py-3 lg:py-4 rounded-xl shadow-lg backdrop-blur-sm transition-all ${
                     msg.type === 'user' 
                       ? 'bg-purple-600/95 text-white rounded-br-sm ml-auto' 
                       : 'bg-white/95 text-gray-800 rounded-bl-sm border border-gray-200/50 mr-auto'
-                  }`}>
+                  } ${newMessageIds.has(msg.id) ? 'animate-pulse-subtle' : ''}`}>
                     <p className="text-sm leading-relaxed">{msg.text}</p>
                     
                     {/* Action Cards */}
@@ -421,6 +436,22 @@ const ChatOverlay: React.FC = () => {
                   </div>
                 </div>
               ))}
+              
+              {/* Typing Indicator */}
+              {isTyping && (
+                <div className="w-full">
+                  <div className="max-w-[300px] lg:max-w-[400px] px-4 lg:px-5 py-3 lg:py-4 rounded-xl shadow-lg backdrop-blur-sm bg-white/95 border border-gray-200/50 mr-auto animate-fade-slide-up">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500">IA digitando</span>
+                      <div className="flex gap-1">
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-typing-dots"></div>
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-typing-dots"></div>
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-typing-dots"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             </div>
           </div>
