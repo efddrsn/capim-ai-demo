@@ -21,6 +21,7 @@ import {
   ArrowRight,
   Download,
   Check,
+  MessageSquare,
 } from 'lucide-react';
 import PatientModal from '../components/PatientModal';
 import GenerativeSchedulingModal from '../components/GenerativeSchedulingModal';
@@ -74,6 +75,12 @@ const EmbeddedPatientList: React.FC<EmbeddedPatientListProps> = ({ patients }) =
   const handleCreateCampaign = () => {
     console.log('Criando campanha para pacientes:', selectedPatients);
     alert(`Campanha criada para ${selectedPatients.length} pacientes!`);
+  };
+
+  const handleWhatsApp = (patient: Patient) => {
+    const message = `Olá ${patient.name}! 👋\n\nSentimos sua falta aqui na clínica! Que tal agendar um retorno para cuidar do seu sorriso? 😊\n\nTemos horários disponíveis esta semana. Responda este WhatsApp para marcar sua consulta!\n\n🦷 Equipe Clínica`;
+    const whatsappUrl = `https://wa.me/55${patient.phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -148,9 +155,18 @@ const EmbeddedPatientList: React.FC<EmbeddedPatientListProps> = ({ patients }) =
                   <h4 className="text-sm font-medium text-gray-900 truncate">{patient.name}</h4>
                   <p className="text-xs text-gray-600">Última visita: {patient.lastVisit}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-gray-600">{patient.phone}</p>
-                  <p className="text-xs text-gray-500 truncate max-w-32">{patient.email}</p>
+                <div className="flex items-center gap-2">
+                  <div className="text-right">
+                    <p className="text-xs text-gray-600">{patient.phone}</p>
+                    <p className="text-xs text-gray-500 truncate max-w-32">{patient.email}</p>
+                  </div>
+                  <button 
+                    onClick={() => handleWhatsApp(patient)}
+                    className="p-1.5 bg-green-100 hover:bg-green-200 text-green-600 rounded-full transition-colors transform hover:scale-105"
+                    title={`Enviar WhatsApp para ${patient.name}`}
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -297,25 +313,109 @@ const HomePage: React.FC = () => {
   };
 
   const getActionCards = (userMessage?: string): { label: string; action: string }[] => {
-    // Special action cards for inactive patients question
-    if (userMessage?.toLowerCase().includes('quem não voltou desde abril') || 
-        userMessage?.toLowerCase().includes('quem nao voltou desde abril')) {
+    if (!userMessage) return [];
+    
+    const lowerMessage = userMessage.toLowerCase();
+    
+    // Contextual action cards based on user message
+    if (lowerMessage.includes('quem não voltou desde abril') || lowerMessage.includes('quem nao voltou desde abril')) {
       return [
         { label: '📝 Criar campanha de engajamento', action: 'create_engagement_campaign' },
         { label: '📋 Criar lista de pacientes', action: 'create_patient_list' },
       ];
     }
     
-    const cards = [
-      { label: '📊 Ver relatório completo', action: 'show_full_report' },
-      { label: '👥 Listar pacientes inativos', action: 'list_inactive_patients' },
-      { label: '📅 Otimizar agenda', action: 'optimize_schedule' },
-      { label: '💰 Analisar faturamento', action: 'analyze_revenue' },
-    ];
+    if (lowerMessage.includes('vendas') || lowerMessage.includes('faturamento')) {
+      return [
+        { label: '📊 Relatório detalhado de vendas', action: 'detailed_sales_report' },
+        { label: '📈 Análise de tendências', action: 'trends_analysis' },
+        { label: '💳 Detalhes por forma de pagamento', action: 'payment_details' },
+        { label: '🎯 Definir metas do próximo mês', action: 'set_goals' },
+      ];
+    }
     
-    // Return random 2-3 cards
-    const shuffled = cards.sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, Math.floor(Math.random() * 2) + 2);
+    if (lowerMessage.includes('pacientes novos') || lowerMessage.includes('quantos pacientes')) {
+      return [
+        { label: '👥 Lista de pacientes novos', action: 'new_patients_list' },
+        { label: '📊 Análise de origem', action: 'source_analysis' },
+        { label: '📞 Acompanhar conversões', action: 'track_conversions' },
+        { label: '🎯 Melhorar captação', action: 'improve_acquisition' },
+      ];
+    }
+    
+    if (lowerMessage.includes('semana passada') || lowerMessage.includes('faturamento da semana')) {
+      return [
+        { label: '📅 Comparar com outras semanas', action: 'compare_weeks' },
+        { label: '⏰ Análise por dia da semana', action: 'daily_analysis' },
+        { label: '🏆 Identificar melhores dias', action: 'best_days' },
+        { label: '📋 Planejar próxima semana', action: 'plan_next_week' },
+      ];
+    }
+    
+    // Ações para pills de ação
+    if (lowerMessage.includes('cadastre um novo paciente') || lowerMessage.includes('cadastrar paciente')) {
+      return [
+        { label: '📋 Formulário completo', action: 'full_patient_form' },
+        { label: '📞 Agendar primeira consulta', action: 'schedule_first_appointment' },
+        { label: '💳 Configurar plano de pagamento', action: 'setup_payment_plan' },
+      ];
+    }
+    
+    if (lowerMessage.includes('relatório de comissões') || lowerMessage.includes('comissões')) {
+      return [
+        { label: '👨‍⚕️ Detalhes por profissional', action: 'professional_details' },
+        { label: '📊 Comparar com mês anterior', action: 'compare_commissions' },
+        { label: '📈 Projeção para próximo mês', action: 'commission_projection' },
+      ];
+    }
+    
+    if (lowerMessage.includes('suprimentos') || lowerMessage.includes('compre suprimentos')) {
+      return [
+        { label: '📦 Ver estoque atual', action: 'current_stock' },
+        { label: '🔄 Configurar pedido automático', action: 'auto_order' },
+        { label: '💰 Comparar fornecedores', action: 'compare_suppliers' },
+        { label: '📅 Agendar próximo pedido', action: 'schedule_order' },
+      ];
+    }
+    
+    if (lowerMessage.includes('cancelar agendamentos') || lowerMessage.includes('cancele os agendamentos')) {
+      return [
+        { label: '📱 Enviar notificações automáticas', action: 'send_notifications' },
+        { label: '🔄 Reagendar automaticamente', action: 'auto_reschedule' },
+        { label: '💰 Política de cancelamento', action: 'cancellation_policy' },
+      ];
+    }
+    
+    if (lowerMessage.includes('agende uma consulta') || lowerMessage.includes('agendamento')) {
+      return [
+        { label: '🗓️ Ver agenda completa', action: 'full_calendar' },
+        { label: '⚡ Agendamento express', action: 'express_booking' },
+        { label: '📞 Confirmar por telefone', action: 'phone_confirmation' },
+      ];
+    }
+    
+    if (lowerMessage.includes('whatsapp') || lowerMessage.includes('envie um whatsapp')) {
+      return [
+        { label: '📱 Enviar confirmações em lote', action: 'bulk_confirmations' },
+        { label: '💬 Templates de mensagem', action: 'message_templates' },
+        { label: '📊 Relatório de entregas', action: 'delivery_report' },
+        { label: '🤖 Configurar respostas automáticas', action: 'auto_replies' },
+      ];
+    }
+    
+    if (lowerMessage.includes('conciliar') || lowerMessage.includes('transações')) {
+      return [
+        { label: '💳 Detalhes por cartão', action: 'card_details' },
+        { label: '🏦 Reconciliar com banco', action: 'bank_reconciliation' },
+        { label: '📊 Análise de inconsistências', action: 'inconsistency_analysis' },
+      ];
+    }
+    
+    // Default fallback actions
+    return [
+      { label: '📊 Ver relatório completo', action: 'show_full_report' },
+      { label: '📅 Otimizar agenda', action: 'optimize_schedule' },
+    ];
   };
 
   const handleSendMessage = () => {
@@ -479,26 +579,95 @@ const HomePage: React.FC = () => {
 
   // Handler for action card clicks
   const handleActionCardClick = (action: string) => {
-    switch (action) {
-      case 'create_patient_list':
-        // Add embedded patient list to chat
-        const patientListMessage: Message = {
-          id: Date.now().toString(),
-          type: 'assistant',
-          text: 'Aqui está a lista interativa dos pacientes que não retornaram desde abril. Você pode selecionar os pacientes e realizar ações em lote:',
-          embeddedPatientList: inactivePatients,
-          isNew: true
-        };
-        setMessages(prev => [...prev, patientListMessage]);
-        setNewMessageIds(new Set([patientListMessage.id]));
-        break;
-      case 'create_engagement_campaign':
-        alert('Funcionalidade de criação de campanha de engajamento será implementada em breve!');
-        break;
-      default:
-        console.log('Action:', action);
-        break;
+    const actionResponses: { [key: string]: string } = {
+      // Patient list actions
+      'create_engagement_campaign': '📱 Campanha de WhatsApp criada! Mensagem personalizada será enviada para todos os pacientes inativos com oferta especial de 20% de desconto no retorno.',
+      
+      // Sales & Revenue actions
+      'detailed_sales_report': '📊 Relatório detalhado: Vendas por procedimento - Limpeza: R$ 8.500 (35%), Estética: R$ 12.200 (42%), Ortodontia: R$ 6.800 (23%). Margem média: 68%.',
+      'trends_analysis': '📈 Tendência: Crescimento de 8% ao mês nos últimos 6 meses. Pico em dezembro (+ 15%). Previsão janeiro: R$ 32.000 baseado em histórico.',
+      'payment_details': '💳 Formas de pagamento: PIX 45% (cresceu 12%), Cartão 38%, Dinheiro 17%. Prazo médio recebimento: 2,3 dias. Taxa inadimplência: 1,8%.',
+      'set_goals': '🎯 Meta sugerida para janeiro: R$ 35.000 (+23% vs dezembro). Focar em: captação de 20 novos pacientes + reativação de 15 inativos.',
+      
+      // New patients actions
+      'new_patients_list': '👥 Pacientes novos dezembro: Ana Silva, Carlos Lima, Fernanda Costa, Roberto Alves... Total: 18 pacientes. Ticket médio: R$ 890.',
+      'source_analysis': '📊 Origem pacientes: Instagram 39%, Indicação 33%, Google 17%, Facebook 11%. Instagram teve ROI de 3,2x - melhor canal!',
+      'track_conversions': '📞 Taxa conversão: Instagram 12%, Google Ads 8%, Indicações 85%. Tempo médio primeira consulta: 4,2 dias após contato.',
+      'improve_acquisition': '🎯 Sugestões: Aumentar investimento Instagram (+R$ 500/mês), criar programa referência (desconto indicação), melhorar landing page.',
+      
+      // Weekly analysis actions  
+      'compare_weeks': '📅 Semana passada vs média mensal: +8% faturamento, -2% pacientes. Ticket médio subiu R$ 45. Melhor semana dos últimos 2 meses!',
+      'daily_analysis': '⏰ Desempenho: Ter-Qui são picos (R$ 2.400 média). Seg/Sex mais baixos (R$ 1.600). Sábado experimental teve bom resultado.',
+      'best_days': '🏆 Melhores dias: Quarta (R$ 2.650), Terça (R$ 2.450), Quinta (R$ 2.100). Considerar mais horários nestes dias.',
+      'plan_next_week': '📋 Planejamento: 24 agendamentos confirmados. Receita prevista: R$ 13.500. 3 slots disponíveis terça/quinta para novos pacientes.',
+      
+      // Patient registration actions
+      'full_patient_form': '📋 Formulário completo aberto! Campos: dados pessoais, histórico médico, preferências de contato, plano tratamento, forma pagamento.',
+      'schedule_first_appointment': '📞 Agendamento primeira consulta: Horários disponíveis - Amanhã 14h, Quinta 9h30, Sexta 16h. Qual prefere?',
+      'setup_payment_plan': '💳 Planos disponíveis: À vista (5% desc.), 2x sem juros, 3-6x (juros 1,2%), 10-12x (juros 2,1%). Cartão ou boleto.',
+      
+      // Commission actions
+      'professional_details': '👨‍⚕️ Dr. Carlos: R$ 1.890 (65 procedimentos), Dra. Ana: R$ 1.350 (42 procedimentos). Performance acima da meta!',
+      'compare_commissions': '📊 vs Novembro: Dr. Carlos +12%, Dra. Ana +8%. Ambos bateram metas. Bônus performance: R$ 600 total.',
+      'commission_projection': '📈 Projeção janeiro: Dr. Carlos R$ 2.200, Dra. Ana R$ 1.650. Baseado em agenda atual + crescimento histórico.',
+      
+      // Supply actions
+      'current_stock': '📦 Estoque: Anestésicos 85% (crítico), Luvas 60%, Algodão 40% (reabastecer), Materiais restauração 90%. Pedido urgente recomendado.',
+      'auto_order': '🔄 Pedido automático configurado! Quando estoque chegar a 20%, sistema fará pedido automático. Fornecedor principal notificado.',
+      'compare_suppliers': '💰 Melhor preço: Fornecedor A (atual) vs B: -15% anestésicos, +8% luvas. Economia potencial: R$ 230/mês trocando anestésicos.',
+      'schedule_order': '📅 Próximo pedido programado: 15/01. Itens inclusos: anestésicos, algodão, luvas M. Total estimado: R$ 1.250.',
+      
+      // Appointment cancellation actions
+      'send_notifications': '📱 Notificações enviadas! WhatsApp para 6 pacientes com explicação, pedido de desculpas e 3 opções de reagendamento.',
+      'auto_reschedule': '🔄 Reagendamento automático: 4 pacientes confirmaram novos horários. 2 aguardando resposta. Taxa reagendamento: 85%.',
+      'cancellation_policy': '💰 Política aplicada: Cancelamento com 24h+ antecedência = sem taxa. Emergência clínica = desconto 20% próxima consulta.',
+      
+      // Scheduling actions
+      'full_calendar': '🗓️ Agenda completa: 89% ocupação esta semana. Próximos slots: hoje 17h, amanhã 9h30/15h, quinta 10h/14h30.',
+      'express_booking': '⚡ Agendamento express ativado! Próximo horário: hoje às 17h com Dr. Carlos. Confirmar paciente e procedimento?',
+      'phone_confirmation': '📞 Confirmação telefônica agendada para 14h. Lista: 6 pacientes amanhã, 4 quinta-feira. Script de confirmação carregado.',
+      
+      // WhatsApp actions
+      'bulk_confirmations': '📱 Enviando confirmações: 12 pacientes amanhã, 8 quinta. Template: "Olá {nome}! Confirme sua consulta {data} às {hora}. Responda SIM."',
+      'message_templates': '💬 Templates: Confirmação, Lembrete, Pós-consulta, Promoção, Reagendamento. Personalizados por tipo de procedimento.',
+      'delivery_report': '📊 Entrega WhatsApp: 94% entregues, 89% lidos, 76% respondidos. Melhor horário envio: 9h-11h e 14h-16h.',
+      'auto_replies': '🤖 Respostas automáticas: "Obrigado! Sua consulta está confirmada" (SIM), "Reagendamento disponível em..." (NÃO).',
+      
+      // Financial reconciliation actions
+      'card_details': '💳 Detalhes cartão: Visa 45%, Master 35%, Elo 20%. Taxa média: 2,8%. Prazo recebimento: Débito D+1, Crédito D+30.',
+      'bank_reconciliation': '🏦 Reconciliação: 11/12 transações batidas. Pendência: R$ 350 (PIX em processamento). Diferença: R$ 0,00.',
+      'inconsistency_analysis': '📊 Análise: 99,2% precisão. Inconsistência mais comum: atraso PIX (3%), erro digitação valor (0,8%).',
+      
+      // Default actions
+      'show_full_report': '📊 Relatório completo gerado! Dashboard com métricas principais, gráficos de tendência e insights acionáveis carregado.',
+      'optimize_schedule': '📅 Otimização agenda: 3 horários realocados, +2 encaixes possíveis. Eficiência aumentou 12%. Receita potencial +R$ 800.'
+    };
+
+    if (action === 'create_patient_list') {
+      // Add embedded patient list to chat
+      const patientListMessage: Message = {
+        id: Date.now().toString(),
+        type: 'assistant',
+        text: 'Aqui está a lista interativa dos pacientes que não retornaram desde abril. Você pode selecionar os pacientes e realizar ações em lote:',
+        embeddedPatientList: inactivePatients,
+        isNew: true
+      };
+      setMessages(prev => [...prev, patientListMessage]);
+      setNewMessageIds(new Set([patientListMessage.id]));
+      return;
     }
+
+    // Handle other actions with responses
+    const response = actionResponses[action] || `Ação "${action}" executada com sucesso!`;
+    const responseMessage: Message = {
+      id: Date.now().toString(),
+      type: 'assistant',
+      text: response,
+      isNew: true
+    };
+    
+    setMessages(prev => [...prev, responseMessage]);
+    setNewMessageIds(new Set([responseMessage.id]));
   };
 
   const handleCheckIn = (pacienteId: number) => {
