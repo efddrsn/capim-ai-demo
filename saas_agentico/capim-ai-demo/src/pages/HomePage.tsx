@@ -24,7 +24,6 @@ import PatientModal from '../components/PatientModal';
 import GenerativeSchedulingModal from '../components/GenerativeSchedulingModal';
 import GenerativePatientModal from '../components/GenerativePatientModal';
 import PatientListModal from '../components/PatientListModal';
-import ActionSuggestionsModal from '../components/ActionSuggestionsModal';
 import Tooltip from '../components/Tooltip';
 import { tooltips } from '../data/tooltips';
 
@@ -78,9 +77,7 @@ const HomePage: React.FC = () => {
   const [newMessageIds, setNewMessageIds] = useState<Set<string>>(new Set());
   
   // New modal states for patient actions
-  const [isActionSuggestionsModalOpen, setIsActionSuggestionsModalOpen] = useState(false);
   const [isPatientListModalOpen, setIsPatientListModalOpen] = useState(false);
-  const [currentSuggestionTitle, setCurrentSuggestionTitle] = useState('');
 
   // Remove animation class after animation completes
   useEffect(() => {
@@ -154,7 +151,16 @@ const HomePage: React.FC = () => {
     return responses[Math.floor(Math.random() * responses.length)];
   };
 
-  const getActionCards = (): { label: string; action: string }[] => {
+  const getActionCards = (userMessage?: string): { label: string; action: string }[] => {
+    // Special action cards for inactive patients question
+    if (userMessage?.toLowerCase().includes('quem não voltou desde abril') || 
+        userMessage?.toLowerCase().includes('quem nao voltou desde abril')) {
+      return [
+        { label: '📝 Criar campanha de engajamento', action: 'create_engagement_campaign' },
+        { label: '📋 Criar lista de pacientes', action: 'create_patient_list' },
+      ];
+    }
+    
     const cards = [
       { label: '📊 Ver relatório completo', action: 'show_full_report' },
       { label: '👥 Listar pacientes inativos', action: 'list_inactive_patients' },
@@ -252,13 +258,6 @@ const HomePage: React.FC = () => {
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    // Handle special case for inactive patients question
-    if (suggestion === 'Quem não voltou desde abril?') {
-      setCurrentSuggestionTitle(suggestion);
-      setIsActionSuggestionsModalOpen(true);
-      return;
-    }
-
     setChatMessage(suggestion);
     // Auto-send the suggestion
     setTimeout(() => {
@@ -280,7 +279,7 @@ const HomePage: React.FC = () => {
           id: (Date.now() + 1).toString(),
           type: 'assistant',
           text: getAIResponse(userMessage.text),
-          actionCards: getActionCards(),
+          actionCards: getActionCards(userMessage.text),
           isNew: true
         };
         setMessages(prev => [...prev, aiResponse]);
@@ -331,26 +330,23 @@ const HomePage: React.FC = () => {
     alert(`✅ Paciente "${patientData.name}" cadastrado com sucesso!`);
   };
 
-  // Handler for action suggestions modal
-  const handleActionSelect = (action: string) => {
-    setIsActionSuggestionsModalOpen(false);
-    
-    if (action === 'patient-list') {
-      setIsPatientListModalOpen(true);
-    } else if (action === 'engagement') {
-      // For now, just show an alert - this could open another modal for campaign creation
-      alert('Funcionalidade de criação de campanha de engajamento será implementada em breve!');
-    }
-  };
-
-  // Close handlers for new modals
-  const closeActionSuggestionsModal = () => {
-    setIsActionSuggestionsModalOpen(false);
-    setCurrentSuggestionTitle('');
-  };
-
   const closePatientListModal = () => {
     setIsPatientListModalOpen(false);
+  };
+
+  // Handler for action card clicks
+  const handleActionCardClick = (action: string) => {
+    switch (action) {
+      case 'create_patient_list':
+        setIsPatientListModalOpen(true);
+        break;
+      case 'create_engagement_campaign':
+        alert('Funcionalidade de criação de campanha de engajamento será implementada em breve!');
+        break;
+      default:
+        console.log('Action:', action);
+        break;
+    }
   };
 
   const handleCheckIn = (pacienteId: number) => {
@@ -685,14 +681,6 @@ const HomePage: React.FC = () => {
         {/* Patient Modal */}
         <PatientModal isOpen={isPatientModalOpen} onClose={closePatientModal} />
 
-        {/* Action Suggestions Modal */}
-        <ActionSuggestionsModal 
-          isOpen={isActionSuggestionsModalOpen}
-          onClose={closeActionSuggestionsModal}
-          onActionSelect={handleActionSelect}
-          title={currentSuggestionTitle}
-        />
-
         {/* Patient List Modal */}
         <PatientListModal 
           isOpen={isPatientListModalOpen}
@@ -784,7 +772,7 @@ const HomePage: React.FC = () => {
                           {msg.actionCards.map((card, index) => (
                             <button
                               key={index}
-                              onClick={() => console.log('Action:', card.action)}
+                              onClick={() => handleActionCardClick(card.action)}
                               className="w-full text-left px-3 py-2 bg-gray-50/90 backdrop-blur-sm text-gray-700 text-xs rounded-lg border border-gray-200/50 hover:bg-gray-100/90 transition-colors shadow-sm"
                             >
                               {card.label}
