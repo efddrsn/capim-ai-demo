@@ -320,10 +320,7 @@ const ChatOverlay: React.FC = () => {
     }
   };
 
-  // Don't show chat bar on home page
-  if (location.pathname === '/') {
-    return null;
-  }
+
 
   // Obter sugestões contextuais para a página atual
   const contextualSuggestions = getPrioritizedSuggestions(location.pathname, 3);
