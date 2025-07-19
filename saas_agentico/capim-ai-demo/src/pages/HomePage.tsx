@@ -19,21 +19,167 @@ import {
   Clock,
   BarChart3,
   ArrowRight,
+  Download,
+  Check,
 } from 'lucide-react';
 import PatientModal from '../components/PatientModal';
 import GenerativeSchedulingModal from '../components/GenerativeSchedulingModal';
 import GenerativePatientModal from '../components/GenerativePatientModal';
-import PatientListModal from '../components/PatientListModal';
+
 import Tooltip from '../components/Tooltip';
 import { tooltips } from '../data/tooltips';
 
+// --- Embedded Patient List Component ---
+interface EmbeddedPatientListProps {
+  patients: Patient[];
+}
+
+const EmbeddedPatientList: React.FC<EmbeddedPatientListProps> = ({ patients }) => {
+  const [selectedPatients, setSelectedPatients] = useState<number[]>([]);
+  const [selectAll, setSelectAll] = useState(false);
+
+  const handlePatientToggle = (patientId: number) => {
+    setSelectedPatients(prev => 
+      prev.includes(patientId) 
+        ? prev.filter(id => id !== patientId)
+        : [...prev, patientId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedPatients([]);
+    } else {
+      setSelectedPatients(patients.map(p => p.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleDownload = () => {
+    const selectedData = patients.filter(p => selectedPatients.includes(p.id));
+    const csvContent = [
+      'Nome,Última Visita,Telefone,Email',
+      ...selectedData.map(p => `${p.name},${p.lastVisit},${p.phone},${p.email}`)
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'pacientes_inativos.csv';
+    link.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleCreateCampaign = () => {
+    console.log('Criando campanha para pacientes:', selectedPatients);
+    alert(`Campanha criada para ${selectedPatients.length} pacientes!`);
+  };
+
+  return (
+    <div className="mt-4 border rounded-lg bg-gray-50/50 overflow-hidden animate-fade-slide-up">
+      {/* Header */}
+      <div className="px-4 py-3 bg-gray-100/70 border-b">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium text-gray-800">
+            Pacientes que não retornaram desde abril ({patients.length})
+          </h3>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="px-4 py-3 border-b bg-white/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selectAll}
+                onChange={handleSelectAll}
+                className="w-3 h-3 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <span className="text-xs font-medium text-gray-700">
+                Selecionar todos
+              </span>
+            </label>
+            <span className="text-xs text-gray-500">
+              {selectedPatients.length} selecionados
+            </span>
+          </div>
+          
+          <div className="flex gap-2">
+            <button
+              onClick={handleDownload}
+              disabled={selectedPatients.length === 0}
+              className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs rounded hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all transform hover:scale-105"
+            >
+              <Download className="w-3 h-3" />
+              CSV
+            </button>
+            <button
+              onClick={handleCreateCampaign}
+              disabled={selectedPatients.length === 0}
+              className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all transform hover:scale-105"
+            >
+              <Users className="w-3 h-3" />
+              Campanha
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Patient List */}
+      <div className="max-h-64 overflow-y-auto">
+        {patients.map((patient, index) => (
+          <div 
+            key={patient.id} 
+            className={`flex items-center gap-3 p-3 border-b border-gray-100 hover:bg-white/70 transition-colors animate-fade-slide-up`}
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
+            <input
+              type="checkbox"
+              checked={selectedPatients.includes(patient.id)}
+              onChange={() => handlePatientToggle(patient.id)}
+              className="w-3 h-3 text-blue-600 rounded focus:ring-blue-500"
+            />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 truncate">{patient.name}</h4>
+                  <p className="text-xs text-gray-600">Última visita: {patient.lastVisit}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-600">{patient.phone}</p>
+                  <p className="text-xs text-gray-500 truncate max-w-32">{patient.email}</p>
+                </div>
+              </div>
+            </div>
+            {selectedPatients.includes(patient.id) && (
+              <Check className="w-4 h-4 text-green-600 animate-scale-in" />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // --- Tipos e Dados da Jornada de Profissionalização ---
+
+type Patient = {
+  id: number;
+  name: string;
+  lastVisit: string;
+  phone: string;
+  email: string;
+};
 
 type Message = {
   id: string;
   type: 'user' | 'assistant';
   text: string;
   actionCards?: { label: string; action: string }[];
+  embeddedPatientList?: Patient[];
   isNew?: boolean;
 };
 
@@ -76,8 +222,7 @@ const HomePage: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessageIds, setNewMessageIds] = useState<Set<string>>(new Set());
   
-  // New modal states for patient actions
-  const [isPatientListModalOpen, setIsPatientListModalOpen] = useState(false);
+
 
   // Remove animation class after animation completes
   useEffect(() => {
@@ -330,15 +475,22 @@ const HomePage: React.FC = () => {
     alert(`✅ Paciente "${patientData.name}" cadastrado com sucesso!`);
   };
 
-  const closePatientListModal = () => {
-    setIsPatientListModalOpen(false);
-  };
+
 
   // Handler for action card clicks
   const handleActionCardClick = (action: string) => {
     switch (action) {
       case 'create_patient_list':
-        setIsPatientListModalOpen(true);
+        // Add embedded patient list to chat
+        const patientListMessage: Message = {
+          id: Date.now().toString(),
+          type: 'assistant',
+          text: 'Aqui está a lista interativa dos pacientes que não retornaram desde abril. Você pode selecionar os pacientes e realizar ações em lote:',
+          embeddedPatientList: inactivePatients,
+          isNew: true
+        };
+        setMessages(prev => [...prev, patientListMessage]);
+        setNewMessageIds(new Set([patientListMessage.id]));
         break;
       case 'create_engagement_campaign':
         alert('Funcionalidade de criação de campanha de engajamento será implementada em breve!');
@@ -681,12 +833,7 @@ const HomePage: React.FC = () => {
         {/* Patient Modal */}
         <PatientModal isOpen={isPatientModalOpen} onClose={closePatientModal} />
 
-        {/* Patient List Modal */}
-        <PatientListModal 
-          isOpen={isPatientListModalOpen}
-          onClose={closePatientListModal}
-          patients={inactivePatients}
-        />
+
 
         {/* Suggestion Pills - only show when in suggestions mode */}
         {chatState === 'suggestions' && (
@@ -779,6 +926,11 @@ const HomePage: React.FC = () => {
                             </button>
                           ))}
                         </div>
+                      )}
+
+                      {/* Embedded Patient List */}
+                      {msg.embeddedPatientList && (
+                        <EmbeddedPatientList patients={msg.embeddedPatientList} />
                       )}
                     </div>
                   </div>
