@@ -30,7 +30,7 @@ import GenerativePatientModal from '../components/GenerativePatientModal';
 
 import Tooltip from '../components/Tooltip';
 import { tooltips } from '../data/tooltips';
-import { searchPatients, Patient } from '../data/mockData';
+import { searchPatients, type Patient as PatientData } from '../data/mockData';
 
 // --- Embedded Patient List Component ---
 interface EmbeddedPatientListProps {
@@ -231,7 +231,7 @@ interface ConsultaNoConsultorio {
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [chatMessage, setChatMessage] = useState('');
-  const [patientSuggestions, setPatientSuggestions] = useState<Patient[]>([]);
+  const [patientSuggestions, setPatientSuggestions] = useState<PatientData[]>([]);
   const [showPatientSuggestions, setShowPatientSuggestions] = useState(false);
   const [selectedPatientIndex, setSelectedPatientIndex] = useState(0);
   const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
