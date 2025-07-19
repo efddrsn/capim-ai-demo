@@ -85,7 +85,56 @@ const HomePage: React.FC = () => {
     }
   }, [newMessageIds]);
 
-  const getAIResponse = (): string => {
+  const getAIResponse = (userMessage?: string): string => {
+    // Respostas específicas baseadas no texto da mensagem do usuário
+    if (userMessage) {
+      const messageResponses: { [key: string]: string } = {
+        // Ações
+        'Cadastre um novo paciente': 'Perfeito! Vou abrir o formulário de cadastro. Preciso dos dados básicos: nome completo, telefone, e-mail e data de nascimento. Tem alguma informação específica sobre este paciente?',
+        'Fazer relatório de comissões': 'Relatório de comissões gerado! Este mês: R$ 3.240 em comissões distribuídas. Dr. Carlos: R$ 1.890 (procedimentos estéticos), Dra. Ana: R$ 1.350 (tratamentos gerais). Performance 12% acima do mês anterior.',
+        'Compre suprimentos da semana': 'Lista de suprimentos da semana criada! Itens críticos: Anestésicos (15 tubetes), Luvas M (8 caixas), Algodão (3kg), Sugador descartável (200 unids). Total estimado: R$ 890. Gero pedido automático?',
+        'Cancele os agendamentos de sexta': 'Encontrei 6 agendamentos para sexta-feira. Pacientes: Maria Silva (9h), João Santos (10h30), Ana Costa (14h), Pedro Lima (15h30), Carla Mendes (16h), Lucas Oliveira (17h). Envio notificações de cancelamento?',
+        'Agende uma consulta': 'Vou ajudar com o agendamento! Para qual paciente gostaria de agendar? Horários disponíveis hoje: 16h, amanhã: 9h e 14h30, quinta: 10h e 15h.',
+        'Envie um whatsapp': 'Central de WhatsApp ativada! Opções: 1) Confirmação de consultas (8 pacientes), 2) Lembretes de retorno (12 pacientes), 3) Mensagem personalizada. Qual tipo de envio prefere?',
+        'Concilie as transações': 'Conciliação bancária realizada! Hoje: 12 transações, R$ 2.450 recebidos. Divergências: R$ 0,00. Métodos: PIX (40%), Cartão (35%), Dinheiro (25%). Tudo conferido e batido!',
+
+        // Perguntas
+        'Como estão minhas vendas este mês?': 'Analisei suas vendas e o faturamento está 15% acima do mês anterior! Foram R$ 28.500 contra R$ 24.780 em novembro. Destaque: procedimentos estéticos (+22%), implantes (+18%). Retenção de pacientes: 88%.',
+        'Quem não voltou desde abril?': 'Encontrei 23 pacientes que não retornam desde abril. Principais: Maria Costa (última consulta 15/04, histórico R$ 2.100), João Silva (22/04, histórico R$ 1.850), Ana Santos (28/04, histórico R$ 990). Criar campanha de reativação?',
+        'Qual o faturamento da semana passada?': 'Semana passada: R$ 12.350 faturados. Crescimento de 8% vs semana anterior. Breakdown: Segunda R$ 1.890, Terça R$ 2.450, Quarta R$ 2.100, Quinta R$ 2.650, Sexta R$ 3.260. Destaque: ortodontia R$ 4.200.',
+        'Quantos pacientes novos tivemos?': 'Dezembro: 18 pacientes novos (vs 25 em novembro). Origem: 8 indicações (44%), 6 redes sociais (33%), 4 busca online (23%). Taxa de conversão primeira consulta: 78% (acima da média de 65%).'
+      };
+
+      // Retorna resposta específica se encontrar match exato
+      if (messageResponses[userMessage]) {
+        return messageResponses[userMessage];
+      }
+
+      // Se não encontrar match específico, tenta match parcial por palavras-chave
+      const lowerMessage = userMessage.toLowerCase();
+      
+      if (lowerMessage.includes('vendas') || lowerMessage.includes('faturamento')) {
+        return 'Analisei seu faturamento e identifiquei tendências importantes. Este mês está 15% acima do anterior com destaque para procedimentos estéticos. Quer ver os detalhes completos?';
+      }
+      
+      if (lowerMessage.includes('paciente') && (lowerMessage.includes('cadastr') || lowerMessage.includes('novo'))) {
+        return 'Vou ajudar com o cadastro! Preciso dos dados básicos: nome, telefone, e-mail e data de nascimento. Tem alguma informação específica sobre este paciente?';
+      }
+      
+      if (lowerMessage.includes('agend') || lowerMessage.includes('consulta')) {
+        return 'Vou verificar sua agenda. Temos horários disponíveis hoje às 16h, amanhã às 9h e 14h30. Para qual paciente gostaria de agendar?';
+      }
+      
+      if (lowerMessage.includes('relatório') || lowerMessage.includes('comiss')) {
+        return 'Relatório de comissões atualizado! Este mês foram R$ 3.240 distribuídas entre a equipe. Performance 12% acima do mês anterior. Quer ver o breakdown detalhado?';
+      }
+      
+      if (lowerMessage.includes('whatsapp') || lowerMessage.includes('mensagem')) {
+        return 'Central de WhatsApp pronta! Posso enviar confirmações, lembretes ou mensagens personalizadas. Qual tipo de comunicação você precisa?';
+      }
+    }
+
+    // Fallback para respostas gerais
     const responses = [
       'Analisei seus dados e identifiquei 3 oportunidades de melhoria na clínica.',
       'Baseado no histórico, recomendo focar na reativação de pacientes este mês.',
@@ -146,7 +195,7 @@ const HomePage: React.FC = () => {
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           type: 'assistant',
-          text: getAIResponse(),
+          text: getAIResponse(userMessage.text),
           actionCards: getActionCards(),
           isNew: true
         };
@@ -193,7 +242,7 @@ const HomePage: React.FC = () => {
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           type: 'assistant',
-          text: getAIResponse(),
+          text: getAIResponse(userMessage.text),
           actionCards: getActionCards(),
           isNew: true
         };
