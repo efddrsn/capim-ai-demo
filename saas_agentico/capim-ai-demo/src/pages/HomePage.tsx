@@ -166,13 +166,8 @@ const HomePage: React.FC = () => {
       const isSchedulingAttempt = chatMessage.toLowerCase().startsWith('agendar');
       const isPatientCreationAttempt = chatMessage.toLowerCase().startsWith('cadastrar paciente');
       
+      // Se é uma tentativa de agendamento/cadastro, apenas retorna pois o modal já está visível
       if (isSchedulingAttempt || isPatientCreationAttempt) {
-        // Handle generative modals as before
-        setIsGenerativeModalVisible(isSchedulingAttempt);
-        setIsGenerativePatientModalVisible(isPatientCreationAttempt);
-        if (isPatientCreationAttempt) {
-          setIsGenerativeModalVisible(false);
-        }
         return;
       }
 
@@ -219,6 +214,22 @@ const HomePage: React.FC = () => {
 
   const handleChatMessageChange = (message: string) => {
     setChatMessage(message);
+    
+    // Detecta "agendar" e mostra modal imediatamente
+    const isSchedulingAttempt = message.toLowerCase().startsWith('agendar');
+    const isPatientCreationAttempt = message.toLowerCase().startsWith('cadastrar paciente');
+    
+    if (isSchedulingAttempt) {
+      setIsGenerativeModalVisible(true);
+      setIsGenerativePatientModalVisible(false);
+    } else if (isPatientCreationAttempt) {
+      setIsGenerativePatientModalVisible(true);
+      setIsGenerativeModalVisible(false);
+    } else {
+      // Se não é uma tentativa de agendamento/cadastro, esconde os modais
+      setIsGenerativeModalVisible(false);
+      setIsGenerativePatientModalVisible(false);
+    }
   };
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -540,7 +551,7 @@ const HomePage: React.FC = () => {
           <p className="text-gray-500 text-xl mb-4">Olá <b>Eric</b>, como posso te ajudar hoje?</p>
         </div>
         
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-6 relative">
           <Tooltip text={tooltips.chatInput} className="flex-1">
             <input
               type="text"
@@ -558,29 +569,28 @@ const HomePage: React.FC = () => {
           >
             <Send className="w-5 h-5" />
           </button>
-        </div>
+          
+          {/* Modal Generativo de Agendamento - posicionado logo abaixo do input */}
+          <GenerativeSchedulingModal
+            isVisible={isGenerativeModalVisible}
+            chatText={chatMessage}
+            onChatTextChange={handleChatMessageChange}
+            onClose={closeGenerativeModal}
+            onSchedulingConfirmed={handleSchedulingConfirmed}
+          />
 
-        {/* Modal Generativo de Agendamento */}
-        {/* Ensure correct props are used for deployment */}
-        <GenerativeSchedulingModal
-          isVisible={isGenerativeModalVisible}
-          chatText={chatMessage}
-          onChatTextChange={handleChatMessageChange}
-          onClose={closeGenerativeModal}
-          onSchedulingConfirmed={handleSchedulingConfirmed}
-        />
+          {/* Patient Creation Modal - posicionado logo abaixo do input */}
+          <GenerativePatientModal
+            isVisible={isGenerativePatientModalVisible}
+            chatText={chatMessage}
+            onChatTextChange={handleChatMessageChange}
+            onClose={closeGenerativePatientModal}
+            onPatientCreated={handlePatientCreated}
+          />
+        </div>
 
         {/* Patient Modal */}
         <PatientModal isOpen={isPatientModalOpen} onClose={closePatientModal} />
-
-        {/* Patient Creation Modal */}
-        <GenerativePatientModal
-          isVisible={isGenerativePatientModalVisible}
-          chatText={chatMessage}
-          onChatTextChange={handleChatMessageChange}
-          onClose={closeGenerativePatientModal}
-          onPatientCreated={handlePatientCreated}
-        />
 
         {/* Suggestion Pills - only show when in suggestions mode */}
         {chatState === 'suggestions' && (
