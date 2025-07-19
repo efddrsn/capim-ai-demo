@@ -582,7 +582,7 @@ const HomePage: React.FC = () => {
             <Send className="w-5 h-5" />
           </button>
           
-          {/* Modal Generativo de Agendamento - posicionado logo abaixo do input */}
+          {/* Modais Generativos - posicionados logo abaixo do input com z-index alto */}
           <GenerativeSchedulingModal
             isVisible={isGenerativeModalVisible}
             chatText={chatMessage}
@@ -591,7 +591,6 @@ const HomePage: React.FC = () => {
             onSchedulingConfirmed={handleSchedulingConfirmed}
           />
 
-          {/* Patient Creation Modal - posicionado logo abaixo do input */}
           <GenerativePatientModal
             isVisible={isGenerativePatientModalVisible}
             chatText={chatMessage}
@@ -606,7 +605,7 @@ const HomePage: React.FC = () => {
 
         {/* Suggestion Pills - only show when in suggestions mode */}
         {chatState === 'suggestions' && (
-          <div className="space-y-3 relative z-50">
+          <div className="space-y-3 relative z-10">
             {/* Ações */}
             <div>
               <div className="flex items-center gap-2 mb-2">

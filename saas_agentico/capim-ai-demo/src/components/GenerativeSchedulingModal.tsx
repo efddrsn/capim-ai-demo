@@ -272,7 +272,7 @@ const GenerativeSchedulingModal: React.FC<GenerativeSchedulingModalProps> = ({
   if (!shouldRender) return null;
 
   return (
-    <div className={`absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-60 transition-all duration-300 ease-out ${
+    <div className={`absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999] transition-all duration-300 ease-out ${
       isAnimating 
         ? 'opacity-100 translate-y-0' 
         : 'opacity-0 translate-y-4'
@@ -312,7 +312,7 @@ const GenerativeSchedulingModal: React.FC<GenerativeSchedulingModalProps> = ({
               <ChevronDown className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
               
               {showPatientDropdown && filteredPatients.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto z-70">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto z-[10000]">
                   {filteredPatients.map((patient, index) => (
                     <button
                       key={index}
@@ -349,7 +349,7 @@ const GenerativeSchedulingModal: React.FC<GenerativeSchedulingModalProps> = ({
               <ChevronDown className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
               
               {showProcedureDropdown && filteredProcedures.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto z-70">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto z-[10000]">
                   {filteredProcedures.map((procedure, index) => (
                     <button
                       key={index}
