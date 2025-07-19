@@ -244,6 +244,33 @@ const AIChatPanel: React.FC = () => {
 
   const handleSuggestionClick = (suggestion: ContextualSuggestion) => {
     setMessage(suggestion.text);
+    // Envia a mensagem automaticamente
+    setTimeout(() => {
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        type: 'user',
+        text: suggestion.text,
+        isNew: true
+      };
+      
+      setChatState('conversation');
+      setMessages(prev => [...prev, userMessage]);
+      setNewMessageIds(new Set([userMessage.id]));
+      setMessage('');
+      
+      // Simula resposta da IA após delay
+      setTimeout(() => {
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'assistant',
+          text: getAIResponse(location.pathname, userMessage.text),
+          actionCards: getActionCards(location.pathname),
+          isNew: true
+        };
+        setMessages(prev => [...prev, aiResponse]);
+        setNewMessageIds(new Set([aiResponse.id]));
+      }, 1000);
+    }, 100);
   };
 
   const getCategoryIcon = (category: string) => {
