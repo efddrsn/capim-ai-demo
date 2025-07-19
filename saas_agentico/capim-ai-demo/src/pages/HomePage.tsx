@@ -22,6 +22,7 @@ import {
   Download,
   Check,
   MessageSquare,
+  User,
 } from 'lucide-react';
 import PatientModal from '../components/PatientModal';
 import GenerativeSchedulingModal from '../components/GenerativeSchedulingModal';
@@ -29,6 +30,7 @@ import GenerativePatientModal from '../components/GenerativePatientModal';
 
 import Tooltip from '../components/Tooltip';
 import { tooltips } from '../data/tooltips';
+import { searchPatients, Patient } from '../data/mockData';
 
 // --- Embedded Patient List Component ---
 interface EmbeddedPatientListProps {
@@ -229,6 +231,9 @@ interface ConsultaNoConsultorio {
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [chatMessage, setChatMessage] = useState('');
+  const [patientSuggestions, setPatientSuggestions] = useState<Patient[]>([]);
+  const [showPatientSuggestions, setShowPatientSuggestions] = useState(false);
+  const [selectedPatientIndex, setSelectedPatientIndex] = useState(0);
   const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
   const [isGenerativeModalVisible, setIsGenerativeModalVisible] = useState(false);
   const [isGenerativePatientModalVisible, setIsGenerativePatientModalVisible] = useState(false);
@@ -468,13 +473,62 @@ const HomePage: React.FC = () => {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    // Se há sugestões de pacientes, gerenciar navegação por teclado
+    if (showPatientSuggestions && patientSuggestions.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSelectedPatientIndex(prev => 
+          prev < patientSuggestions.length - 1 ? prev + 1 : 0
+        );
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSelectedPatientIndex(prev => 
+          prev > 0 ? prev - 1 : patientSuggestions.length - 1
+        );
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        // Preenche com a primeira sugestão
+        const firstPatient = patientSuggestions[0];
+        setChatMessage(firstPatient.name);
+        setShowPatientSuggestions(false);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        // Abre a ficha do primeiro paciente
+        const firstPatient = patientSuggestions[0];
+        openPatientRecord(firstPatient.id);
+      } else if (e.key === 'Escape') {
+        setShowPatientSuggestions(false);
+      }
+    } else if (e.key === 'Enter') {
       handleSendMessage();
     }
   };
 
+  // Detecta se a query é um nome (contém apenas letras, espaços e acentos)
+  const isNameQuery = (query: string): boolean => {
+    return /^[a-záàâãéèêíïóôõöúçñü\s]+$/i.test(query) && query.length >= 2;
+  };
+
+  // Função para abrir perfil do paciente
+  const openPatientRecord = (patientId: string) => {
+    navigate(`/pacientes?patient=${patientId}`);
+    setShowPatientSuggestions(false);
+    setChatMessage('');
+  };
+
   const handleChatMessageChange = (message: string) => {
     setChatMessage(message);
+    
+    // Busca de pacientes quando é uma query de nome
+    if (isNameQuery(message)) {
+      const patients = searchPatients(message);
+      setPatientSuggestions(patients);
+      setShowPatientSuggestions(patients.length > 0);
+      setSelectedPatientIndex(0);
+    } else {
+      setPatientSuggestions([]);
+      setShowPatientSuggestions(false);
+    }
     
     // Detecta triggers generativos e mostra modal imediatamente
     const isSchedulingAttempt = message.toLowerCase().startsWith('agendar');
@@ -486,17 +540,20 @@ const HomePage: React.FC = () => {
     if (isSchedulingAttempt) {
       setIsGenerativeModalVisible(true);
       setIsGenerativePatientModalVisible(false);
+      setShowPatientSuggestions(false);
     } else if (isPatientCreationAttempt) {
       setIsGenerativePatientModalVisible(true);
       setIsGenerativeModalVisible(false);
+      setShowPatientSuggestions(false);
     } else if (isReportAttempt) {
       // Para demonstrar: por agora, vamos apenas simular que o relatório seria gerado
       // Em uma implementação completa, aqui abriríamos um GenerativeReportModal
       console.log('🔮 Trigger detectado para geração de relatório:', message);
       setIsGenerativeModalVisible(false);
       setIsGenerativePatientModalVisible(false);
-    } else {
-      // Se não é uma tentativa de agendamento/cadastro/relatório, esconde os modais
+      setShowPatientSuggestions(false);
+    } else if (!isNameQuery(message)) {
+      // Se não é uma tentativa de agendamento/cadastro/relatório/nome, esconde os modais
       setIsGenerativeModalVisible(false);
       setIsGenerativePatientModalVisible(false);
     }
@@ -963,15 +1020,56 @@ const HomePage: React.FC = () => {
         </div>
         
         <div className="flex gap-2 mb-6 relative">
-          <Tooltip text={tooltips.chatInput} className="flex-1">
+          <Tooltip text={tooltips.chatInput} className="flex-1 relative">
             <input
               type="text"
               value={chatMessage}
               onChange={(e) => handleChatMessageChange(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={chatState === 'suggestions' ? "Ex: Como estão minhas vendas este mês?" : "Continue a conversa..."}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 relative z-50"
+              onKeyDown={handleKeyPress}
+              placeholder={
+                showPatientSuggestions 
+                  ? "Digite um nome... (Tab para preencher, Enter para abrir)" 
+                  : chatState === 'suggestions' 
+                    ? "Ex: Como estão minhas vendas este mês? Ou digite um nome de paciente..." 
+                    : "Continue a conversa..."
+              }
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 relative z-50 w-full"
             />
+            
+            {/* Autocomplete de Pacientes */}
+            {showPatientSuggestions && patientSuggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+                <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50 border-b">
+                  Pacientes
+                  <span className="float-right text-gray-400">
+                    Tab para preencher • Enter para abrir
+                  </span>
+                </div>
+                {patientSuggestions.map((patient, index) => (
+                  <button
+                    key={patient.id}
+                    onClick={() => openPatientRecord(patient.id)}
+                    className={`w-full text-left px-3 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors ${
+                      index === selectedPatientIndex ? 'bg-blue-50 border-l-2 border-blue-500' : ''
+                    }`}
+                  >
+                    <User className="w-4 h-4 text-gray-400" />
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">{patient.name}</div>
+                      {patient.email && (
+                        <div className="text-xs text-gray-500">{patient.email}</div>
+                      )}
+                    </div>
+                    {index === 0 && (
+                      <div className="text-xs text-gray-400 flex items-center gap-1">
+                        <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">↵</kbd>
+                        abrir
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </Tooltip>
           <button
             onClick={handleSendMessage}
