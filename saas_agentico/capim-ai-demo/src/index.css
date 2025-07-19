@@ -2,6 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
+
+/* Estilos para o Command Bar */
+[cmdk-group-heading] {
+  @apply px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-50 border-b border-gray-100;
+}
+
+[cmdk-group]:not([hidden]) + [cmdk-group]:not([hidden]) [cmdk-group-heading] {
+  @apply border-t border-gray-200;
+}
+
+[cmdk-item][data-selected="true"] {
+  @apply bg-blue-50 text-blue-900;
+}
+
+[cmdk-item]:hover {
+  @apply bg-gray-50;
+}
+
 /* Chat message animations */
 @keyframes fade-slide-up {
   0% {

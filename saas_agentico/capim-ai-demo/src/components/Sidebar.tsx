@@ -1,10 +1,14 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Calendar, Users, FileText, DollarSign, Package, MessageCircle, BarChart3, Stethoscope, Calculator, CreditCard } from 'lucide-react';
+import { Home, Calendar, Users, FileText, DollarSign, Package, MessageCircle, BarChart3, Stethoscope, Calculator, CreditCard, Command } from 'lucide-react';
 import Tooltip from './Tooltip';
 import { tooltips } from '../data/tooltips';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  onOpenCommandBar?: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onOpenCommandBar }) => {
   // Seção Atendimento & Clínico
   const atendimentoItems = [
     { to: '/', icon: Home, label: 'Início' },
@@ -60,6 +64,16 @@ const Sidebar: React.FC = () => {
             <CreditCard className="w-4 h-4" />
             Fazer Checkout
           </button>
+
+          <Tooltip text="Abrir barra de comandos (Ctrl+K)">
+            <button
+              onClick={onOpenCommandBar}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium text-sm"
+            >
+              <Command className="w-4 h-4" />
+              Comandos <span className="text-xs opacity-75">⌘K</span>
+            </button>
+          </Tooltip>
 
         </div>
         
