@@ -237,12 +237,12 @@ const GenerativePatientModal: React.FC<GenerativePatientModalProps> = ({
   if (!shouldRender) return null;
 
   return (
-    <div className={`absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999] transition-all duration-300 ease-out ${
+    <div className={`absolute top-full left-0 right-0 mt-2 mx-2 lg:mx-0 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999] transition-all duration-300 ease-out ${
       isAnimating 
         ? 'opacity-100 translate-y-0' 
         : 'opacity-0 translate-y-4'
     }`}>
-      <div className="p-6">
+      <div className="p-4 lg:p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
             <User className="w-5 h-5 text-blue-600" />

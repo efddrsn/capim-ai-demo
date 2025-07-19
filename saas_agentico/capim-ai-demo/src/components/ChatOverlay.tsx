@@ -333,21 +333,21 @@ const ChatOverlay: React.FC = () => {
       {/* Barra de Chat Principal - sempre fixa */}
       <div className="bg-white border-b border-gray-200 shadow-sm mb-6">
         {/* Barra de Chat */}
-        <div className="flex items-center justify-center px-6 py-3">
-          {/* Chat Input - perfeitamente centralizado */}
-          <div className="flex gap-3 w-[825px]">
+        <div className="flex items-center justify-center px-4 lg:px-6 py-3">
+          {/* Chat Input - responsivo */}
+          <div className="flex gap-2 lg:gap-3 w-full max-w-4xl lg:w-[825px]">
             <input
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={chatState === 'suggestions' ? "Digite sua mensagem ou clique em uma sugestão..." : "Continue a conversa..."}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white z-50 relative"
+              placeholder={chatState === 'suggestions' ? "Digite sua mensagem..." : "Continue a conversa..."}
+              className="flex-1 px-3 lg:px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white z-50 relative"
             />
             <button
               onClick={handleSendMessage}
               title="Enviar mensagem"
-              className="px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors flex items-center gap-2 z-50 relative"
+              className="px-3 lg:px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors flex items-center gap-2 z-50 relative"
             >
               <Send className="w-4 h-4" />
             </button>
@@ -356,8 +356,8 @@ const ChatOverlay: React.FC = () => {
 
         {/* Sugestões Contextuais - só aparecem no modo suggestions */}
         {chatState === 'suggestions' && contextualSuggestions.length > 0 && (
-          <div className="px-6 py-3 border-t border-gray-100 bg-gray-50">
-            <div className="flex flex-wrap gap-2">
+          <div className="px-4 lg:px-6 py-3 border-t border-gray-100 bg-gray-50">
+            <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
               {contextualSuggestions.map((suggestion) => (
                 <button
                   key={suggestion.id}
@@ -366,7 +366,7 @@ const ChatOverlay: React.FC = () => {
                   title={`Categoria: ${suggestion.category === 'acao' ? 'Ação' : suggestion.category === 'pergunta' ? 'Pergunta' : 'Análise'}`}
                 >
                   {getCategoryIcon(suggestion.category)}
-                  {suggestion.text}
+                  <span className="max-w-[150px] lg:max-w-none truncate">{suggestion.text}</span>
                 </button>
               ))}
             </div>
@@ -383,9 +383,9 @@ const ChatOverlay: React.FC = () => {
             onClick={handleClearChat}
           ></div>
           
-          {/* Container centralizado para as mensagens - ajustado para área de conteúdo */}
-          <div className="absolute top-20 left-64 right-0 flex justify-center pointer-events-none z-10 pt-8">
-            <div className="w-[600px] max-h-[75vh] pointer-events-none">
+          {/* Container centralizado para as mensagens - responsivo */}
+          <div className="absolute top-20 left-0 lg:left-64 right-0 flex justify-center pointer-events-none z-10 pt-8 px-4 lg:px-0">
+            <div className="w-full max-w-lg lg:w-[600px] max-h-[75vh] pointer-events-none">
             {/* Área de Mensagens - sem background */}
             <div className="space-y-4 pointer-events-auto">
               {messages.map((msg) => (
@@ -397,7 +397,7 @@ const ChatOverlay: React.FC = () => {
                       : ''
                   }`}
                 >
-                  <div className={`max-w-[400px] px-5 py-4 rounded-xl shadow-lg backdrop-blur-sm ${
+                  <div className={`max-w-[300px] lg:max-w-[400px] px-4 lg:px-5 py-3 lg:py-4 rounded-xl shadow-lg backdrop-blur-sm ${
                     msg.type === 'user' 
                       ? 'bg-purple-600/95 text-white rounded-br-sm ml-auto' 
                       : 'bg-white/95 text-gray-800 rounded-bl-sm border border-gray-200/50 mr-auto'

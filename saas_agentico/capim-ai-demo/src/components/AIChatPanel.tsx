@@ -374,7 +374,7 @@ const AIChatPanel: React.FC = () => {
   };
 
   return (
-    <div className="w-96 bg-white border-l border-gray-200 flex flex-col h-full">
+    <div className="w-full lg:w-96 bg-white border-l border-gray-200 flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 flex items-center justify-between">
         <div>
@@ -462,7 +462,7 @@ const AIChatPanel: React.FC = () => {
               className={`inline-flex items-center gap-1 px-3 py-1 text-xs border rounded-full transition-colors ${getCategoryColor(suggestion.category)}`}
             >
               {getCategoryIcon(suggestion.category)}
-              <span className="truncate max-w-[120px]">{suggestion.text}</span>
+              <span className="truncate max-w-[120px] lg:max-w-[100px]">{suggestion.text}</span>
             </button>
           ))}
         </div>
