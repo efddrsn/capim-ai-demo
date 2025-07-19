@@ -165,9 +165,12 @@ const HomePage: React.FC = () => {
       // Check for generative modal triggers first
       const isSchedulingAttempt = chatMessage.toLowerCase().startsWith('agendar');
       const isPatientCreationAttempt = chatMessage.toLowerCase().startsWith('cadastrar paciente');
+      const isReportAttempt = chatMessage.toLowerCase().startsWith('fazer relatório') || 
+                             chatMessage.toLowerCase().startsWith('gerar relatório') ||
+                             chatMessage.toLowerCase().startsWith('relatório');
       
-      // Se é uma tentativa de agendamento/cadastro, apenas retorna pois o modal já está visível
-      if (isSchedulingAttempt || isPatientCreationAttempt) {
+      // Se é uma tentativa de agendamento/cadastro/relatório, apenas retorna pois já foi processado
+      if (isSchedulingAttempt || isPatientCreationAttempt || isReportAttempt) {
         return;
       }
 
@@ -215,9 +218,12 @@ const HomePage: React.FC = () => {
   const handleChatMessageChange = (message: string) => {
     setChatMessage(message);
     
-    // Detecta "agendar" e mostra modal imediatamente
+    // Detecta triggers generativos e mostra modal imediatamente
     const isSchedulingAttempt = message.toLowerCase().startsWith('agendar');
     const isPatientCreationAttempt = message.toLowerCase().startsWith('cadastrar paciente');
+    const isReportAttempt = message.toLowerCase().startsWith('fazer relatório') || 
+                           message.toLowerCase().startsWith('gerar relatório') ||
+                           message.toLowerCase().startsWith('relatório');
     
     if (isSchedulingAttempt) {
       setIsGenerativeModalVisible(true);
@@ -225,8 +231,14 @@ const HomePage: React.FC = () => {
     } else if (isPatientCreationAttempt) {
       setIsGenerativePatientModalVisible(true);
       setIsGenerativeModalVisible(false);
+    } else if (isReportAttempt) {
+      // Para demonstrar: por agora, vamos apenas simular que o relatório seria gerado
+      // Em uma implementação completa, aqui abriríamos um GenerativeReportModal
+      console.log('🔮 Trigger detectado para geração de relatório:', message);
+      setIsGenerativeModalVisible(false);
+      setIsGenerativePatientModalVisible(false);
     } else {
-      // Se não é uma tentativa de agendamento/cadastro, esconde os modais
+      // Se não é uma tentativa de agendamento/cadastro/relatório, esconde os modais
       setIsGenerativeModalVisible(false);
       setIsGenerativePatientModalVisible(false);
     }

@@ -237,7 +237,7 @@ const GenerativePatientModal: React.FC<GenerativePatientModalProps> = ({
   if (!shouldRender) return null;
 
   return (
-    <div className={`absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-20 transition-all duration-300 ease-out ${
+    <div className={`absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-60 transition-all duration-300 ease-out ${
       isAnimating 
         ? 'opacity-100 translate-y-0' 
         : 'opacity-0 translate-y-4'
@@ -326,7 +326,7 @@ const GenerativePatientModal: React.FC<GenerativePatientModalProps> = ({
               <ChevronDown className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
               
               {showAddressDropdown && filteredNeighborhoods.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto z-30">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto z-70">
                   {filteredNeighborhoods.map((neighborhood, index) => (
                     <button
                       key={index}
