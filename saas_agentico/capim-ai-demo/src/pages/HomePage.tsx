@@ -23,6 +23,8 @@ import {
 import PatientModal from '../components/PatientModal';
 import GenerativeSchedulingModal from '../components/GenerativeSchedulingModal';
 import GenerativePatientModal from '../components/GenerativePatientModal';
+import PatientListModal from '../components/PatientListModal';
+import ActionSuggestionsModal from '../components/ActionSuggestionsModal';
 import Tooltip from '../components/Tooltip';
 import { tooltips } from '../data/tooltips';
 
@@ -74,6 +76,11 @@ const HomePage: React.FC = () => {
   const [chatState, setChatState] = useState<ChatState>('suggestions');
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessageIds, setNewMessageIds] = useState<Set<string>>(new Set());
+  
+  // New modal states for patient actions
+  const [isActionSuggestionsModalOpen, setIsActionSuggestionsModalOpen] = useState(false);
+  const [isPatientListModalOpen, setIsPatientListModalOpen] = useState(false);
+  const [currentSuggestionTitle, setCurrentSuggestionTitle] = useState('');
 
   // Remove animation class after animation completes
   useEffect(() => {
@@ -245,6 +252,13 @@ const HomePage: React.FC = () => {
   };
 
   const handleSuggestionClick = (suggestion: string) => {
+    // Handle special case for inactive patients question
+    if (suggestion === 'Quem não voltou desde abril?') {
+      setCurrentSuggestionTitle(suggestion);
+      setIsActionSuggestionsModalOpen(true);
+      return;
+    }
+
     setChatMessage(suggestion);
     // Auto-send the suggestion
     setTimeout(() => {
@@ -315,6 +329,28 @@ const HomePage: React.FC = () => {
     // Navega para a página de pacientes (ou mostra confirmação)
     console.log('Paciente criado:', patientData);
     alert(`✅ Paciente "${patientData.name}" cadastrado com sucesso!`);
+  };
+
+  // Handler for action suggestions modal
+  const handleActionSelect = (action: string) => {
+    setIsActionSuggestionsModalOpen(false);
+    
+    if (action === 'patient-list') {
+      setIsPatientListModalOpen(true);
+    } else if (action === 'engagement') {
+      // For now, just show an alert - this could open another modal for campaign creation
+      alert('Funcionalidade de criação de campanha de engajamento será implementada em breve!');
+    }
+  };
+
+  // Close handlers for new modals
+  const closeActionSuggestionsModal = () => {
+    setIsActionSuggestionsModalOpen(false);
+    setCurrentSuggestionTitle('');
+  };
+
+  const closePatientListModal = () => {
+    setIsPatientListModalOpen(false);
   };
 
   const handleCheckIn = (pacienteId: number) => {
@@ -490,6 +526,52 @@ const HomePage: React.FC = () => {
     'Quantos pacientes novos tivemos?',
   ];
 
+  // Dados dos pacientes inativos (não voltaram desde abril)
+  const inactivePatients = [
+    {
+      id: 1,
+      name: 'Ana Beatriz Santos',
+      lastVisit: '15/04/2024',
+      phone: '(11) 98765-4321',
+      email: 'ana.santos@email.com'
+    },
+    {
+      id: 2,
+      name: 'Roberto Lima',
+      lastVisit: '08/04/2024',
+      phone: '(11) 97654-3210',
+      email: 'roberto.lima@email.com'
+    },
+    {
+      id: 3,
+      name: 'Fernanda Costa',
+      lastVisit: '22/04/2024',
+      phone: '(11) 96543-2109',
+      email: 'fernanda.costa@email.com'
+    },
+    {
+      id: 4,
+      name: 'José Oliveira',
+      lastVisit: '03/04/2024',
+      phone: '(11) 95432-1098',
+      email: 'jose.oliveira@email.com'
+    },
+    {
+      id: 5,
+      name: 'Mariana Souza',
+      lastVisit: '29/04/2024',
+      phone: '(11) 94321-0987',
+      email: 'mariana.souza@email.com'
+    },
+    {
+      id: 6,
+      name: 'Pedro Almeida',
+      lastVisit: '11/04/2024',
+      phone: '(11) 93210-9876',
+      email: 'pedro.almeida@email.com'
+    }
+  ];
+
   // Dados para as seções do dia
   const [pacientesNaClinica, setPacientesNaClinica] = useState<PacienteNaClinica[]>([
     {
@@ -602,6 +684,21 @@ const HomePage: React.FC = () => {
 
         {/* Patient Modal */}
         <PatientModal isOpen={isPatientModalOpen} onClose={closePatientModal} />
+
+        {/* Action Suggestions Modal */}
+        <ActionSuggestionsModal 
+          isOpen={isActionSuggestionsModalOpen}
+          onClose={closeActionSuggestionsModal}
+          onActionSelect={handleActionSelect}
+          title={currentSuggestionTitle}
+        />
+
+        {/* Patient List Modal */}
+        <PatientListModal 
+          isOpen={isPatientListModalOpen}
+          onClose={closePatientListModal}
+          patients={inactivePatients}
+        />
 
         {/* Suggestion Pills - only show when in suggestions mode */}
         {chatState === 'suggestions' && (
