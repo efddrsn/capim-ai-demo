@@ -1134,13 +1134,13 @@ const HomePage: React.FC = () => {
           <div className="relative z-10">
             {filteredSuggestions.length > 0 ? (
               <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                <div className="flex gap-3 min-w-max">
+                <div className="flex gap-2 min-w-max">
                   {filteredSuggestions.map((suggestion, index) => (
                     <button
                       key={`${suggestion.type}-${index}`}
                       onClick={() => handleSuggestionClick(suggestion.text)}
                       className={`
-                        flex-shrink-0 px-4 py-2 rounded-full border transition-all duration-200 text-sm font-medium whitespace-nowrap
+                        flex-shrink-0 px-3 py-1.5 rounded-full border transition-all duration-200 text-xs font-medium whitespace-nowrap
                         ${suggestion.type === 'action' 
                           ? 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200 hover:border-green-300' 
                           : 'bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200 hover:border-blue-300'
@@ -1148,11 +1148,11 @@ const HomePage: React.FC = () => {
                         hover:shadow-sm hover:scale-105
                       `}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         {suggestion.type === 'action' ? (
-                          <Play className="w-3 h-3" />
+                          <Play className="w-2.5 h-2.5" />
                         ) : (
-                          <MessageCircle className="w-3 h-3" />
+                          <MessageCircle className="w-2.5 h-2.5" />
                         )}
                         {suggestion.text}
                       </div>
