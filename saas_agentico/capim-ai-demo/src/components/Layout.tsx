@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { LayoutList, MessageSquare, Menu, X } from 'lucide-react';
 import Sidebar from './Sidebar';
 import ChatOverlay from './ChatOverlay';
 import AIChatPanel from './AIChatPanel';
+import CommandBar from './CommandBar';
 
 const Layout: React.FC = () => {
   const [chatMode, setChatMode] = useState<'overlay' | 'panel'>('overlay');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
 
   const toggleChatMode = () => {
     setChatMode(prev => prev === 'overlay' ? 'panel' : 'overlay');
@@ -16,6 +18,19 @@ const Layout: React.FC = () => {
   const toggleMobileSidebar = () => {
     setIsMobileSidebarOpen(prev => !prev);
   };
+
+  // Keyboard shortcut para abrir command bar
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setIsCommandBarOpen(prev => !prev);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -106,6 +121,9 @@ const Layout: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Command Bar */}
+      <CommandBar isOpen={isCommandBarOpen} onOpenChange={setIsCommandBarOpen} />
     </div>
   );
 };
